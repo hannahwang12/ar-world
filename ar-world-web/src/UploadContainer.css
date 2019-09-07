@@ -1,0 +1,9 @@
+.upload-container {
+  max-width: 800px;
+}
+
+.upload-container .uploader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
