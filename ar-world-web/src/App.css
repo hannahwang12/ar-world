@@ -1,13 +1,25 @@
 .banner {
-  height: 40vh;
+  height: 42vh;
   display: flex;
   align-items: flex-end;
-  padding: 30px 100px;
-  background-color: #722ed1;
+  padding: 30px 150px;
+  background-color: #13c2c2;
   margin-bottom: 80px;
+  background-image: url(./background.jpg);
+  background-size: 100vw;
+  background-position-y: 30%;
 }
 
 .banner h1 {
   color: white;
   font-size: 80px;
+  margin-bottom: 20px;
+  font-family: Raleway;
+}
+
+.banner .logo {
+  height: 110px;
+  margin-bottom: 24px;
+  filter: invert(100%);
+  margin-right: 18px;
 }

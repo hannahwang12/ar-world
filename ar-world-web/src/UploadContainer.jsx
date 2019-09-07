@@ -72,7 +72,7 @@ export default class UploadPage extends React.Component {
           />
         </Steps>     
         </form>
-        {this.state.submitted && <Button onClick={() => window.location.reload()}><Plus className="button-icon" />Upload More</Button>}
+        {this.state.submitted && <Button onClick={() => window.location.reload()} className="upload-more"><Plus className="button-icon" />Upload More</Button>}
       </div>
     );
   }
