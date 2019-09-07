@@ -20,15 +20,16 @@ export default class UploadPage extends React.Component {
       return;
     }
     if (info.file.status === 'done') {
-      console.log(info.file.originFileObj)
       getBase64(info.file.originFileObj, image => {
         axios.post("http://localhost:3001/imageToMongo", { image })
-          this.setState({
-            image,
-            loading: false,
-          });
-          console.log(this.state.image)
-        });
+          .then(() => {
+            this.setState({
+              image,
+              loading: false,
+            });
+            console.log(this.state.image)
+          })
+      });
     }
   };
 
@@ -48,7 +49,6 @@ export default class UploadPage extends React.Component {
                 name="file"
                 onChange={this.handleImageUpload}
                 action="http://localhost:3001/imageToMongo"
-                data={(file) => { console.log(file.originFileObj) }}
               >
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
