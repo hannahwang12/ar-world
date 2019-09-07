@@ -25,6 +25,8 @@ import java.io.IOException
 
 open class ArVideoFragment : ArFragment() {
 
+    // Key is the hash, val is Base-64 encoding
+    var imageMap = HashMap<String, String>()
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var externalTexture: ExternalTexture
     private lateinit var videoRenderable: ModelRenderable
@@ -57,8 +59,13 @@ open class ArVideoFragment : ArFragment() {
             requireContext().assets.open(imageName).use { return BitmapFactory.decodeStream(it) }
 
         fun setupAugmentedImageDatabase(config: Config, session: Session): Boolean {
+            // TODO:
+            // Make backend call to get pairs of hash and image encodings
+            // Place them all into the hash map
             try {
                 config.augmentedImageDatabase = AugmentedImageDatabase(session).also { db ->
+                    // TODO:
+                    // Load into the AugmentedImagesDB
                     db.addImage(TEST_VIDEO_1, loadAugmentedImageBitmap(TEST_IMAGE_1))
                     db.addImage(TEST_VIDEO_2, loadAugmentedImageBitmap(TEST_IMAGE_2))
                     db.addImage(TEST_VIDEO_3, loadAugmentedImageBitmap(TEST_IMAGE_3))
@@ -137,6 +144,8 @@ open class ArVideoFragment : ArFragment() {
     }
 
     private fun playbackArVideo(augmentedImage: AugmentedImage) {
+        // TODO:
+        // augmentedImage.name will be the hash value
         Log.d(TAG, "playbackVideo = ${augmentedImage.name}")
 
         requireContext().assets.openFd(augmentedImage.name)
@@ -168,6 +177,9 @@ open class ArVideoFragment : ArFragment() {
                 videoRenderable.material.setFloat2("imageSize", imageSize.width(), imageSize.height())
                 videoRenderable.material.setFloat2("videoSize", videoWidth, videoHeight)
                 videoRenderable.material.setBoolean("videoCropEnabled", true)
+
+                // TODO:
+                // mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/[HASH]")
 
                 mediaPlayer.setDataSource(descriptor)
             }.also {
