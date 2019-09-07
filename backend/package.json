@@ -10,9 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "connect-busboy": "0.0.2",
+    "aws-sdk": "^2.524.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-fileupload": "^1.1.5",
     "mongo": "^0.1.0",
     "mongodb": "^3.3.2",
     "mongoose": "^5.6.13",
