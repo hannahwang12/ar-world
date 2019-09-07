@@ -82,7 +82,9 @@ open class ArVideoFragment : ArFragment() {
             try {
                 config.augmentedImageDatabase = AugmentedImageDatabase(session).also { db ->
                     // TODO:
-                    // Load into the AugmentedImagesDB
+                    // Using the response from Mongo, iterate through the response (parsed as JSON)
+                    // For each key-value pair in the response, load it:
+                    // db.addImage(KEY, convert the VALUE to a Bitmap from Base64 Encoding)
                     db.addImage(TEST_VIDEO_1, loadAugmentedImageBitmap(TEST_IMAGE_1))
                     db.addImage(TEST_VIDEO_2, loadAugmentedImageBitmap(TEST_IMAGE_2))
                     db.addImage(TEST_VIDEO_3, loadAugmentedImageBitmap(TEST_IMAGE_3))
