@@ -26,9 +26,8 @@ app.use(busboy());
 
 app.post('/imageToMongo', (req, res) => {
   // Receives Base-64 image, sends to Mongo
-  console.log("Received")
+//   console.log(req.body)
   const { hash, image } = req.body;
-  /*
   Mappings.create({
     hash,
     image,
@@ -37,7 +36,6 @@ app.post('/imageToMongo', (req, res) => {
       console.log(err);
     }
   });
-  */
   res.sendStatus(200);
 });
 

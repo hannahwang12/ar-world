@@ -1,5 +1,6 @@
 import React from 'react';
 import { Steps, Upload, Icon } from 'antd';
+import axios from 'axios';
 import './UploadContainer.css';
 
 const { Step } = Steps;
@@ -19,14 +20,15 @@ export default class UploadPage extends React.Component {
       return;
     }
     if (info.file.status === 'done') {
-      getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        }, () => {
-          console.log(this.state.imageUrl)
-        }),
-      );
+      console.log(info.file.originFileObj)
+      getBase64(info.file.originFileObj, image => {
+        axios.post("http://localhost:3001/imageToMongo", { image })
+          this.setState({
+            image,
+            loading: false,
+          });
+          console.log(this.state.image)
+        });
     }
   };
 
@@ -46,6 +48,7 @@ export default class UploadPage extends React.Component {
                 name="file"
                 onChange={this.handleImageUpload}
                 action="http://localhost:3001/imageToMongo"
+                data={(file) => { console.log(file.originFileObj) }}
               >
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
