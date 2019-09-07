@@ -20,7 +20,9 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(fileUpload());
 
-app.post('/imageToMongo', (req, res) => {
+app.post('/upload', (req, res) => {
+    console.log('BACKEND')
+    console.log(req.files)
   // Receives Base-64 image, sends to Mongo
 //   console.log(req.body)
   const { hash, image } = req.body;
