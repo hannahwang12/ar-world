@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import AWS from "aws-sdk";
 import { Steps, Upload, Icon } from 'antd';
+import axios from 'axios';
 import './UploadContainer.css';
 
 const { Step } = Steps;
@@ -21,14 +22,16 @@ export default class UploadPage extends React.Component {
       return;
     }
     if (info.file.status === 'done') {
-      getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        }, () => {
-          console.log(this.state.imageUrl)
-        }),
-      );
+      getBase64(info.file.originFileObj, image => {
+        axios.post("http://localhost:3001/imageToMongo", { image })
+          .then(() => {
+            this.setState({
+              image,
+              loading: false,
+            });
+            console.log(this.state.image)
+          })
+      });
     }
   };
 
