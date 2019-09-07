@@ -10,6 +10,11 @@ const aws = require('aws-sdk');
 const app = express();
 const port = 3001;
 
+aws.config.update({ region: 'us-east-1', accessKeyId: s3Auth.id, secretAccessKey: s3Auth.key });
+aws.config.mediaconvert = { endpoint: s3Auth.mediaConvertEndpoint };
+
+const jsonJob = require('./job.json');
+
 const s3 = new aws.S3({
     accessKeyId: s3Auth.id,
     secretAccessKey: s3Auth.key,
@@ -38,10 +43,20 @@ app.post('/upload', (req, res) => {
         Body: video.data,
         Encoding: video.encoding
     }
-    // s3.upload(params, (err) => {
-    //     if (err) console.log(err);
-    // });
-  
+
+    s3.upload(params, (err) => {
+        if (err) {
+            console.log(err);
+        }
+        jsonJob.Settings.Inputs[0].FileInput = "s3://" + s3Auth.inBucket + "/" + hash;
+        jsonJob.Settings.OutputGroups[0].OutputGroupSettings.DashIsoGroupSettings.Destination = "s3://" + s3Auth.outBucket + "/";
+        const mc = new aws.MediaConvert();
+        mc.createJob(jsonJob, (err) => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    });
     res.sendStatus(200);
 });
 
