@@ -14,7 +14,6 @@ const MappingSchema = mongoose.Schema(
   { collection: 'mapping' },
 );
 
-
 db.once('open', () => {
   console.log('Open!');
 });
