@@ -36,7 +36,7 @@ export default class UploadPage extends React.Component {
       <div className="upload-container">
         <h1>Upload</h1>
         <iframe name="hiddenFrame" width="0" height="0" border="0" style={{display: "none"}}></iframe>
-        <form id="upload" encType="multipart/form-data" method="post" action="http://localhost:3001/upload" target="hiddenFrame" onSubmit={() => this.setState({ submitted: true })}>
+        <form id="upload" encType="multipart/form-data" method="post" action="/upload" target="hiddenFrame" onSubmit={() => this.setState({ submitted: true })}>
         <Steps current={this.state.current}>
           <Step
             title="Upload Image"
@@ -56,7 +56,7 @@ export default class UploadPage extends React.Component {
               <div className="ant-upload ant-upload-select ant-upload-select-picture-card">
                 <span className="ant-upload span" role="button" tabIndex="0">
                   <Film className="icon" />
-                  <input id="videoUpload" className="upload-input" name="image" type="file" onChange={() => this.onUploadFile('videoUpload')} />
+                  <input id="videoUpload" className="upload-input" name="video" type="file" onChange={() => this.onUploadFile('videoUpload')} />
                   <label for="videoUpload">{this.state.videoUpload ? this.state.videoUpload : 'Upload'}</label>
                 </span>
               </div>

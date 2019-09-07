@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const shortid = require('shortid');
 const { s3Auth } = require('./s3_auth');
 const fileUpload = require('express-fileupload');
@@ -26,6 +27,9 @@ app.use(fileUpload());
 
 app.get('/getHashPairs', (req, res) => {
   Mappings.find({}, (err, found) => {
+    if (err) {
+      res.send(500);
+    }
     let map = {};
 
     found.forEach((elem) => {
@@ -39,10 +43,8 @@ app.get('/getHashPairs', (req, res) => {
 app.post('/upload', (req, res) => {
     const hash = shortid.generate();
     const { image, video } = req.files;
-    
-    console.log(hash);
 
-    // upload image
+    // upload image to mongo
     Mappings.create({
         hash,
         image: image.data.toString('base64'),
@@ -50,7 +52,7 @@ app.post('/upload', (req, res) => {
         if (err) console.log(err);
     });
 
-    // upload video
+    // upload video to S3
     const params = {
         Key: hash,
         Bucket: s3Auth.inBucket,
@@ -75,3 +77,7 @@ app.post('/upload', (req, res) => {
 });
 
 app.listen(port);
+app.use(express.static(path.join(__dirname, '../ar-world-web/build')));
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: path.join(__dirname, '../ar-world-web/build/') });
+});
