@@ -1,1 +1,3 @@
-/mongo_auth.js
+mongo_auth.js
+s3_auth.js
+node_modules
