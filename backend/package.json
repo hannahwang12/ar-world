@@ -5,15 +5,18 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "connect-busboy": "0.0.2",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongo": "^0.1.0",
     "mongodb": "^3.3.2",
     "mongoose": "^5.6.13",
+    "nodemon": "^1.19.2",
     "s3": "^4.4.0"
   }
 }

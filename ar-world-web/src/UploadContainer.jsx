@@ -13,21 +13,25 @@ function getBase64(img, callback) {
 }
 
 export default class UploadPage extends React.Component {
-  handleChange = info => {
-    console.log("change")
+  handleImageUpload = info => {
     if (info.file.status === 'uploading') {
       this.setState({ loading: true });
       return;
     }
     if (info.file.status === 'done') {
-      // Get this url from response in real world.
       getBase64(info.file.originFileObj, imageUrl =>
         this.setState({
           imageUrl,
           loading: false,
+        }, () => {
+          console.log(this.state.imageUrl)
         }),
       );
     }
+  };
+
+  handleVideoUpload = info => {
+    console.log("video")
   };
 
   render() {
@@ -40,8 +44,8 @@ export default class UploadPage extends React.Component {
             description={
               <Dragger
                 name="file"
-                onChange={this.handleChange}
-                action="localhost:4001"
+                onChange={this.handleImageUpload}
+                action="http://localhost:3001/imageToMongo"
               >
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
@@ -54,8 +58,8 @@ export default class UploadPage extends React.Component {
             description={
               <Dragger
                 name="file"
-                onChange={this.handleChange}
-                action="localhost:4001"
+                onChange={this.handleVideoUpload}
+                action="http://localhost:3001/videoToS3"
               >
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
