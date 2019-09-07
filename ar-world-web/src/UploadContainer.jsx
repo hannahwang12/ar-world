@@ -1,6 +1,6 @@
 import React from 'react';
-import { Steps } from 'antd';
-import { Image, Film } from 'react-feather'
+import { Steps, Button } from 'antd';
+import { Image, Film, Upload, Plus } from 'react-feather'
 import './UploadContainer.css';
 
 const { Step } = Steps;
@@ -34,7 +34,6 @@ export default class UploadPage extends React.Component {
   render() {
     return (
       <div className="upload-container">
-        <h1>Upload</h1>
         <iframe name="hiddenFrame" width="0" height="0" border="0" style={{display: "none"}}></iframe>
         <form id="upload" encType="multipart/form-data" method="post" action="http://localhost:3001/upload" target="hiddenFrame" onSubmit={() => this.setState({ submitted: true })}>
         <Steps current={this.state.current}>
@@ -66,11 +65,14 @@ export default class UploadPage extends React.Component {
             status={this.state.submitted ? "finish" : undefined}
             title="Submit"
             description={
-              <input type="submit" value="Submit" id="submit" />
+              <button type="submit" value="submit" id="submit" className={`ant-btn ant-btn-primary${this.state.current !== 2 ? " disabled" : ""}`} disabled={this.state.current !== 2}>
+                <Upload className="button-icon" /> Submit
+              </button>
             }
           />
         </Steps>     
-        </form> 
+        </form>
+        {this.state.submitted && <Button onClick={() => window.location.reload()}><Plus className="button-icon" />Upload More</Button>}
       </div>
     );
   }

@@ -1,3 +1,13 @@
-.App {
-  text-align: center;
+.banner {
+  height: 40vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 30px 100px;
+  background-color: #722ed1;
+  margin-bottom: 80px;
+}
+
+.banner h1 {
+  color: white;
+  font-size: 80px;
 }
