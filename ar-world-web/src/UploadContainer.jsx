@@ -1,4 +1,6 @@
 import React from 'react';
+import axios from 'axios';
+import AWS from "aws-sdk";
 import { Steps, Upload, Icon } from 'antd';
 import './UploadContainer.css';
 
@@ -30,10 +32,6 @@ export default class UploadPage extends React.Component {
     }
   };
 
-  handleVideoUpload = info => {
-    console.log("video")
-  };
-
   render() {
     return (
       <div className="upload-container">
@@ -56,17 +54,12 @@ export default class UploadPage extends React.Component {
           <Step
             title="Upload Video"
             description={
-              <Dragger
-                name="file"
-                onChange={this.handleVideoUpload}
-                action="http://localhost:3001/videoToS3"
-              >
-                <p className="ant-upload-drag-icon">
-                  <Icon type="inbox" />
-                </p>
-              </Dragger>
+              <form id="uploadbanner" enctype="multipart/form-data" method="post" action="http://localhost:3001/videoToS3">
+                <input id="fileupload" name="video" type="file" />
+                <input type="submit" value="submit" id="submit" />
+              </form>
             }
-          />
+            />
           <Step
             title="Submit"
           />
