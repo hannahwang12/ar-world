@@ -1,6 +1,4 @@
 import React from 'react';
-import axios from 'axios';
-import AWS from "aws-sdk";
 import { Steps, Upload, Icon } from 'antd';
 import axios from 'axios';
 import './UploadContainer.css';
