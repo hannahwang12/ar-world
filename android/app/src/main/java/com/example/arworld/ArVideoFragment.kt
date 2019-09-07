@@ -16,6 +16,10 @@ import android.view.animation.LinearInterpolator
 import android.widget.Toast
 import androidx.core.graphics.rotationMatrix
 import androidx.core.graphics.transform
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.ar.core.*
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.rendering.ExternalTexture
@@ -59,13 +63,28 @@ open class ArVideoFragment : ArFragment() {
             requireContext().assets.open(imageName).use { return BitmapFactory.decodeStream(it) }
 
         fun setupAugmentedImageDatabase(config: Config, session: Session): Boolean {
+            val queue = Volley.newRequestQueue(requireContext())
+            val mongoURL = "http://arworld-env.qhhma4hbjf.us-east-2.elasticbeanstalk.com/getHashPairs/"
+
+            // Request a string response from the provided URL.
+            val stringRequest = StringRequest(
+                Request.Method.GET, mongoURL,
+                Response.Listener<String> { response ->
+                    Log.e(TAG, response)
+                }, Response.ErrorListener { Log.e(TAG, "Oops!") })
+
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest)
+
             // TODO:
             // Make backend call to get pairs of hash and image encodings
             // Place them all into the hash map
             try {
                 config.augmentedImageDatabase = AugmentedImageDatabase(session).also { db ->
                     // TODO:
-                    // Load into the AugmentedImagesDB
+                    // Using the response from Mongo, iterate through the response (parsed as JSON)
+                    // For each key-value pair in the response, load it:
+                    // db.addImage(KEY, convert the VALUE to a Bitmap from Base64 Encoding)
                     db.addImage(TEST_VIDEO_1, loadAugmentedImageBitmap(TEST_IMAGE_1))
                     db.addImage(TEST_VIDEO_2, loadAugmentedImageBitmap(TEST_IMAGE_2))
                     db.addImage(TEST_VIDEO_3, loadAugmentedImageBitmap(TEST_IMAGE_3))

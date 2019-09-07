@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const shortid = require('shortid');
 const { s3Auth } = require('./s3_auth');
 const fileUpload = require('express-fileupload');
@@ -8,7 +9,7 @@ const { Mappings } = require('./db.js');
 
 const aws = require('aws-sdk');
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 aws.config.update({ region: 'us-east-1', accessKeyId: s3Auth.id, secretAccessKey: s3Auth.key });
 aws.config.mediaconvert = { endpoint: s3Auth.mediaConvertEndpoint };
@@ -24,11 +25,26 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(fileUpload());
 
+app.get('/getHashPairs', (req, res) => {
+  Mappings.find({}, (err, found) => {
+    if (err) {
+      res.send(500);
+    }
+    let map = {};
+
+    found.forEach((elem) => {
+      map[elem.hash] = elem.image;
+    });
+
+    res.send(map);
+  })
+});
+
 app.post('/upload', (req, res) => {
     const hash = shortid.generate();
     const { image, video } = req.files;
-    
-    // upload image
+
+    // upload image to mongo
     Mappings.create({
         hash,
         image: image.data.toString('base64'),
@@ -36,7 +52,7 @@ app.post('/upload', (req, res) => {
         if (err) console.log(err);
     });
 
-    // upload video
+    // upload video to S3
     const params = {
         Key: hash,
         Bucket: s3Auth.inBucket,
@@ -61,3 +77,7 @@ app.post('/upload', (req, res) => {
 });
 
 app.listen(port);
+app.use(express.static(path.join(__dirname, '../ar-world-web/build')));
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: path.join(__dirname, '../ar-world-web/build/') });
+});
