@@ -1,3 +1,4 @@
 mongo_auth.js
 s3_auth.js
 node_modules
+job.json

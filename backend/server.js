@@ -24,10 +24,24 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(fileUpload());
 
+app.get('/getHashPairs', (req, res) => {
+  Mappings.find({}, (err, found) => {
+    let map = {};
+
+    found.forEach((elem) => {
+      map[elem.hash] = elem.image;
+    });
+
+    res.send(userMap);
+  })
+});
+
 app.post('/upload', (req, res) => {
     const hash = shortid.generate();
     const { image, video } = req.files;
     
+    console.log(hash);
+
     // upload image
     Mappings.create({
         hash,
