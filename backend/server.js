@@ -9,7 +9,7 @@ const { Mappings } = require('./db.js');
 
 const aws = require('aws-sdk');
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 aws.config.update({ region: 'us-east-1', accessKeyId: s3Auth.id, secretAccessKey: s3Auth.key });
 aws.config.mediaconvert = { endpoint: s3Auth.mediaConvertEndpoint };
@@ -36,7 +36,7 @@ app.get('/getHashPairs', (req, res) => {
       map[elem.hash] = elem.image;
     });
 
-    res.send(userMap);
+    res.send(map);
   })
 });
 
