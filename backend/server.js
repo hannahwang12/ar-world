@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { MappingSchema } = require('./db.js/index.js.js');
+const { MappingSchema } = require('./db.js');
 
 const app = express();
 const port = 3000;
