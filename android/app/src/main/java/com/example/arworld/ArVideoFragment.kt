@@ -7,7 +7,9 @@ import android.graphics.RectF
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.*
 import android.media.MediaPlayer
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,12 +27,45 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.rendering.ExternalTexture
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import org.json.JSONObject
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 open class ArVideoFragment : ArFragment() {
 
-    // Key is the hash, val is Base-64 encoding
-    var imageMap = HashMap<String, String>()
+    class LoadBitmap(url: String, hash: String, config: Config, session: Session) : AsyncTask<String, Void, Bitmap>() {
+        private var mUrl: String = url
+        private var arconfig: Config = config
+        private var arsession: Session = session
+        private var hashstring: String = hash
+
+        private fun getBitmapFromURL(src: String): Bitmap {
+            try {
+                var url = URL(src)
+                var connection = url.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.connect()
+                var input = connection.inputStream
+                return BitmapFactory.decodeStream(input)
+            } catch (err : IOException) {
+                throw err
+            }
+        }
+
+        override fun doInBackground(vararg params: String): Bitmap {
+            Log.e("INFO", mUrl)
+            return getBitmapFromURL(mUrl)
+        }
+
+        override fun onPostExecute(result: Bitmap) {
+            Log.e("INFO", "ADDED")
+            arconfig.augmentedImageDatabase = AugmentedImageDatabase(arsession).also { db ->
+                db.addImage(hashstring, result)
+            }
+        }
+    }
+
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var externalTexture: ExternalTexture
     private lateinit var videoRenderable: ModelRenderable
@@ -70,32 +105,21 @@ open class ArVideoFragment : ArFragment() {
             val stringRequest = StringRequest(
                 Request.Method.GET, mongoURL,
                 Response.Listener<String> { response ->
-                    Log.e(TAG, response)
+                    var jObject = JSONObject(response)
+                    var keys = jObject.keys()
+
+                    while(keys.hasNext()) {
+                        val key: String = keys.next()
+                        Log.e("INFO", key)
+                        val loadBitmap = LoadBitmap("http://d2h8ztguq0hpsz.cloudfront.net/test_image_1.jpg", key, config, session)
+                        loadBitmap.execute()
+                    }
                 }, Response.ErrorListener { Log.e(TAG, "Oops!") })
 
             // Add the request to the RequestQueue.
             queue.add(stringRequest)
 
-            // TODO:
-            // Make backend call to get pairs of hash and image encodings
-            // Place them all into the hash map
-            try {
-                config.augmentedImageDatabase = AugmentedImageDatabase(session).also { db ->
-                    // TODO:
-                    // Using the response from Mongo, iterate through the response (parsed as JSON)
-                    // For each key-value pair in the response, load it:
-                    // db.addImage(KEY, convert the VALUE to a Bitmap from Base64 Encoding)
-                    db.addImage(TEST_VIDEO_1, loadAugmentedImageBitmap(TEST_IMAGE_1))
-                    db.addImage(TEST_VIDEO_2, loadAugmentedImageBitmap(TEST_IMAGE_2))
-                    db.addImage(TEST_VIDEO_3, loadAugmentedImageBitmap(TEST_IMAGE_3))
-                }
-                return true
-            } catch (e: IllegalArgumentException) {
-                Log.e(TAG, "Could not add bitmap to augmented image database", e)
-            } catch (e: IOException) {
-                Log.e(TAG, "IO exception loading augmented image bitmap.", e)
-            }
-            return false
+            return true
         }
 
         return super.getSessionConfiguration(session).also {
@@ -143,6 +167,7 @@ open class ArVideoFragment : ArFragment() {
 
         val updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage::class.java)
         for (augmentedImage in updatedAugmentedImages) {
+            Log.e(TAG, "SAW IMAGE")
             if (activeAugmentedImage != augmentedImage && augmentedImage.trackingState == TrackingState.TRACKING) {
                 try {
                     dismissArVideo()
@@ -163,10 +188,6 @@ open class ArVideoFragment : ArFragment() {
     }
 
     private fun playbackArVideo(augmentedImage: AugmentedImage) {
-        // TODO:
-        // augmentedImage.name will be the hash value
-        Log.d(TAG, "playbackVideo = ${augmentedImage.name}")
-
         requireContext().assets.openFd(augmentedImage.name)
             .use { descriptor ->
 
@@ -197,10 +218,7 @@ open class ArVideoFragment : ArFragment() {
                 videoRenderable.material.setFloat2("videoSize", videoWidth, videoHeight)
                 videoRenderable.material.setBoolean("videoCropEnabled", true)
 
-                // TODO:
-                // mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/[HASH]")
-
-                mediaPlayer.setDataSource(descriptor)
+                mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/${augmentedImage.name}")
             }.also {
                 mediaPlayer.isLooping = true
                 mediaPlayer.prepare()
