@@ -23,7 +23,9 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.ar.core.*
+import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
+import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ExternalTexture
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
@@ -37,7 +39,7 @@ open class ArVideoFragment : ArFragment() {
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var externalTexture: ExternalTexture
     private lateinit var videoRenderable: ModelRenderable
-    private lateinit var videoAnchorNode: VideoAnchorNode
+    private lateinit var videoAnchorNode: AnchorNode
 
     private var activeAugmentedImage: AugmentedImage? = null
 
@@ -115,7 +117,7 @@ open class ArVideoFragment : ArFragment() {
                 return@exceptionally null
             }
 
-        videoAnchorNode = VideoAnchorNode().apply {
+        videoAnchorNode = AnchorNode().apply {
             setParent(arSceneView.scene)
         }
     }
@@ -154,6 +156,11 @@ open class ArVideoFragment : ArFragment() {
         mediaPlayer.prepare()
         mediaPlayer.start()
         videoAnchorNode.anchor = augmentedImage.createAnchor(augmentedImage.centerPose)
+        videoAnchorNode.localScale = Vector3(
+            augmentedImage.extentX, // width
+            1.0f,
+            augmentedImage.extentZ
+        )
 
         activeAugmentedImage = augmentedImage
 
@@ -163,10 +170,12 @@ open class ArVideoFragment : ArFragment() {
 
             fadeInVideo()
         }
-        /*
-        requireContext().assets.openFd(augmentedImage.name)
-            .use { descriptor ->
+    }
 
+//        requireContext().assets.openFd(augmentedImage.name)
+//            .use { descriptor ->
+
+                /*
                 val metadataRetriever = MediaMetadataRetriever()
                 metadataRetriever.setDataSource(
                     descriptor.fileDescriptor,
@@ -184,6 +193,7 @@ open class ArVideoFragment : ArFragment() {
 
                 val videoScaleType = VideoScaleType.CenterCrop
 
+
                 videoAnchorNode.setVideoProperties(
                     videoWidth = videoWidth, videoHeight = videoHeight, videoRotation = videoRotation,
                     imageWidth = imageSize.width(), imageHeight = imageSize.height(),
@@ -194,26 +204,26 @@ open class ArVideoFragment : ArFragment() {
                 videoRenderable.material.setFloat2("videoSize", videoWidth, videoHeight)
                 videoRenderable.material.setBoolean("videoCropEnabled", true)
                 // mediaPlayer.setDataSource(descriptor)
-                mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/${augmentedImage.name}")
-            }.also {
-                mediaPlayer.isLooping = true
-                mediaPlayer.prepare()
-                mediaPlayer.start()
-            }
+                */
+//                mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/${augmentedImage.name}")
+//            }.also {
+//                mediaPlayer.isLooping = true
+//                mediaPlayer.prepare()
+//                mediaPlayer.start()
+//            }
 
 
-        videoAnchorNode.anchor = augmentedImage.createAnchor(augmentedImage.centerPose)
-
-        activeAugmentedImage = augmentedImage
-
-        externalTexture.surfaceTexture.setOnFrameAvailableListener {
-            it.setOnFrameAvailableListener(null)
-            videoAnchorNode.renderable = videoRenderable
-
-            fadeInVideo()
-        }
-        */
-    }
+//        videoAnchorNode.anchor = augmentedImage.createAnchor(augmentedImage.centerPose)
+//
+//        activeAugmentedImage = augmentedImage
+//
+//        externalTexture.surfaceTexture.setOnFrameAvailableListener {
+//            it.setOnFrameAvailableListener(null)
+//            videoAnchorNode.renderable = videoRenderable
+//
+//            fadeInVideo()
+//        }
+//    }
 
     private fun fadeInVideo() {
         ValueAnimator.ofFloat(0f, 1f).apply {
