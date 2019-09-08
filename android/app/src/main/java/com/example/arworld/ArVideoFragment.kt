@@ -7,7 +7,9 @@ import android.graphics.RectF
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.*
 import android.media.MediaPlayer
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,12 +27,13 @@ import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.rendering.ExternalTexture
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import org.json.JSONObject
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 open class ArVideoFragment : ArFragment() {
 
-    // Key is the hash, val is Base-64 encoding
-    var imageMap = HashMap<String, String>()
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var externalTexture: ExternalTexture
     private lateinit var videoRenderable: ModelRenderable
@@ -59,35 +62,17 @@ open class ArVideoFragment : ArFragment() {
 
     override fun getSessionConfiguration(session: Session): Config {
 
-        fun loadAugmentedImageBitmap(imageName: String): Bitmap =
-            requireContext().assets.open(imageName).use { return BitmapFactory.decodeStream(it) }
+        var imageMap: HashMap<String, Bitmap> = HashMap()
+        var b = this.getArguments();
+        if(b!!.getSerializable("hashmap") != null)
+            imageMap = b!!.getSerializable("hashmap") as HashMap<String, Bitmap>
 
         fun setupAugmentedImageDatabase(config: Config, session: Session): Boolean {
-            val queue = Volley.newRequestQueue(requireContext())
-            val mongoURL = "http://arworld-env.qhhma4hbjf.us-east-2.elasticbeanstalk.com/getHashPairs/"
-
-            // Request a string response from the provided URL.
-            val stringRequest = StringRequest(
-                Request.Method.GET, mongoURL,
-                Response.Listener<String> { response ->
-                    Log.e(TAG, response)
-                }, Response.ErrorListener { Log.e(TAG, "Oops!") })
-
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest)
-
-            // TODO:
-            // Make backend call to get pairs of hash and image encodings
-            // Place them all into the hash map
             try {
                 config.augmentedImageDatabase = AugmentedImageDatabase(session).also { db ->
-                    // TODO:
-                    // Using the response from Mongo, iterate through the response (parsed as JSON)
-                    // For each key-value pair in the response, load it:
-                    // db.addImage(KEY, convert the VALUE to a Bitmap from Base64 Encoding)
-                    db.addImage(TEST_VIDEO_1, loadAugmentedImageBitmap(TEST_IMAGE_1))
-                    db.addImage(TEST_VIDEO_2, loadAugmentedImageBitmap(TEST_IMAGE_2))
-                    db.addImage(TEST_VIDEO_3, loadAugmentedImageBitmap(TEST_IMAGE_3))
+                    for ((key, value) in imageMap) {
+                        db.addImage(key, value)
+                    }
                 }
                 return true
             } catch (e: IllegalArgumentException) {
@@ -143,6 +128,7 @@ open class ArVideoFragment : ArFragment() {
 
         val updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage::class.java)
         for (augmentedImage in updatedAugmentedImages) {
+            Log.e(TAG, "SAW IMAGE")
             if (activeAugmentedImage != augmentedImage && augmentedImage.trackingState == TrackingState.TRACKING) {
                 try {
                     dismissArVideo()
@@ -163,10 +149,21 @@ open class ArVideoFragment : ArFragment() {
     }
 
     private fun playbackArVideo(augmentedImage: AugmentedImage) {
-        // TODO:
-        // augmentedImage.name will be the hash value
-        Log.d(TAG, "playbackVideo = ${augmentedImage.name}")
+        mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/${augmentedImage.name}.mp4")
+        mediaPlayer.isLooping = true
+        mediaPlayer.prepare()
+        mediaPlayer.start()
+        videoAnchorNode.anchor = augmentedImage.createAnchor(augmentedImage.centerPose)
 
+        activeAugmentedImage = augmentedImage
+
+        externalTexture.surfaceTexture.setOnFrameAvailableListener {
+            it.setOnFrameAvailableListener(null)
+            videoAnchorNode.renderable = videoRenderable
+
+            fadeInVideo()
+        }
+        /*
         requireContext().assets.openFd(augmentedImage.name)
             .use { descriptor ->
 
@@ -196,11 +193,8 @@ open class ArVideoFragment : ArFragment() {
                 videoRenderable.material.setFloat2("imageSize", imageSize.width(), imageSize.height())
                 videoRenderable.material.setFloat2("videoSize", videoWidth, videoHeight)
                 videoRenderable.material.setBoolean("videoCropEnabled", true)
-
-                // TODO:
-                // mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/[HASH]")
-
-                mediaPlayer.setDataSource(descriptor)
+                // mediaPlayer.setDataSource(descriptor)
+                mediaPlayer.setDataSource("http://d31pkab7yukjd1.cloudfront.net/${augmentedImage.name}")
             }.also {
                 mediaPlayer.isLooping = true
                 mediaPlayer.prepare()
@@ -218,6 +212,7 @@ open class ArVideoFragment : ArFragment() {
 
             fadeInVideo()
         }
+        */
     }
 
     private fun fadeInVideo() {
