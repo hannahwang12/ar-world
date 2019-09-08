@@ -248,13 +248,5 @@ open class ArVideoFragment : ArFragment() {
 
     companion object {
         private const val TAG = "ArVideoFragment"
-
-        private const val TEST_IMAGE_1 = "test_image_1.jpg"
-        private const val TEST_IMAGE_2 = "test_image_2.jpg"
-        private const val TEST_IMAGE_3 = "test_image_3.jpg"
-
-        private const val TEST_VIDEO_1 = "test_video_1.mp4"
-        private const val TEST_VIDEO_2 = "test_video_2.mp4"
-        private const val TEST_VIDEO_3 = "test_video_3.mp4"
     }
 }
